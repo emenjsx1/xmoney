@@ -371,23 +371,33 @@
 
         function renderVSL(container) {
             container.innerHTML = `
-                <div class="fade-in bg-[#3a3a3a] flex flex-col h-full w-full overflow-hidden">
-                    <div class="px-4 py-6 text-center bg-gradient-to-b from-[#3a3a3a] to-[#2a2a2a]">
-                        <p class="text-lg leading-tight">
-                            <span class="text-white">Assiste ao video abaixo e aprende como </span>
-                            <span class="text-3xl font-black text-green-500 drop-shadow-lg">levantar o dinheiro</span>
+                <div class="fade-in bg-[#3a3a3a] flex flex-col w-full pb-10">
+                    <div class="px-4 py-8 text-center bg-[#2a2a2a] border-b border-gray-700">
+                        <p class="text-xl leading-snug">
+                            <span class="text-white">Assiste ao video abaixo e aprende como </span><br/>
+                            <span class="text-4xl font-extrabold text-green-500 drop-shadow-md">levantar o dinheiro</span><br/>
                             <span class="text-white"> das tuas </span>
-                            <span class="text-2xl font-bold text-yellow-400 drop-shadow-lg">avaliacoes</span>
+                            <span class="text-3xl font-bold text-yellow-400">avaliacoes</span>
                         </p>
                     </div>
-                    <div class="px-4 py-4 bg-[#3a3a3a]">
-                        <div id="vsl-video-container" class="rounded-xl overflow-hidden bg-[#2a2a2a] aspect-video relative">
+                    
+                    <div class="px-2 py-4 flex justify-center">
+                        <div id="vsl-video-container" class="w-full max-w-full rounded-2xl overflow-hidden shadow-2xl bg-black border-2 border-gray-600">
                              <!-- Script-based player as provided by user -->
-                             <vturb-smartplayer id="vid-${playerIds[6]}" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"></vturb-smartplayer>
+                             <vturb-smartplayer id="vid-${playerIds[6]}" style="display: block; margin: 0 auto; width: 100%; height: auto;"></vturb-smartplayer>
                         </div>
                     </div>
-                    <div id="testimonials-container" class="h-3/5 overflow-hidden bg-[#2a2a2a] px-3 py-4 flex flex-col gap-2">
-                        <!-- Testimonials will dynamicly scroll here -->
+
+                    <div class="px-4 mt-4">
+                        <div class="bg-[#242424] rounded-2xl p-4 border border-gray-700 shadow-inner">
+                            <h3 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>
+                                Depoimentos Real-time
+                            </h3>
+                            <div id="testimonials-container" class="flex flex-col gap-4">
+                                <!-- Testimonials will dynamically appear here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -403,28 +413,37 @@
 
         function startTestimonials() {
             const container = document.getElementById("testimonials-container");
-            
+            if (!container) return;
+
             function update() {
                 container.innerHTML = "";
-                for (let i = 0; i < 4; i++) {
+                // Show 5 testimonials at a time
+                for (let i = 0; i < 5; i++) {
                     const idx = (testimonialIndex + i) % testimonials.length;
                     const n = testimonials[idx];
                     const div = document.createElement("div");
-                    div.className = "bg-[#3a3a3a] rounded-lg p-3 border border-gray-600/30 animate-slideUp";
-                    div.style.animationDelay = `${150 * i}ms`;
+                    div.className = "bg-[#2d2d2d] rounded-xl p-4 border border-gray-700/50 shadow-sm animate-slideUp";
+                    div.style.animationDelay = `${200 * i}ms`;
                     div.innerHTML = `
-                        <div class="flex items-start gap-2 mb-2">
-                            <img src="${n.image}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-white truncate">${n.name}</p>
-                                <p class="text-xs text-gray-400 truncate">${n.location}</p>
+                        <div class="flex items-start gap-3 mb-3">
+                            <div class="relative">
+                                <img src="${n.image}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600/30">
                             </div>
-                            <span class="text-xs text-gray-500 flex-shrink-0">${n.minutes}m</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-center mb-1">
+                                    <p class="text-sm font-black text-white truncate">${n.name}</p>
+                                    <span class="text-[10px] text-gray-500 font-bold uppercase">${n.minutes}m atrás</span>
+                                </div>
+                                <p class="text-[11px] text-gray-400 font-medium">${n.location}</p>
+                            </div>
                         </div>
-                        <p class="text-xs text-gray-300 mb-2 leading-snug line-clamp-3">${n.text}</p>
-                        <div class="flex items-center gap-2 text-xs text-gray-400 border-t border-gray-600/20 pt-2">
-                            <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v-7a1.5 1.5 0 00-3 0v7z"></path></svg>
-                            <span>${n.likes.toLocaleString()}</span>
+                        <p class="text-xs text-gray-300 leading-relaxed mb-4 italic">"${n.text}"</p>
+                        <div class="flex items-center gap-4 text-[10px] text-gray-400 border-t border-gray-700/30 pt-3">
+                            <div class="flex items-center gap-1.5 cursor-pointer hover:text-red-500 transition-colors">
+                                <svg class="w-3.5 h-3.5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v-7a1.5 1.5 0 00-3 0v7z"></path></svg>
+                                <span class="font-bold">${n.likes.toLocaleString()}</span>
+                            </div>
+                            <div class="font-bold cursor-pointer hover:underline">Responder</div>
                         </div>
                     `;
                     container.appendChild(div);
@@ -433,7 +452,7 @@
             }
             
             update();
-            setInterval(update, 15000);
+            setInterval(update, 12000);
         }
 
         // Initialize App
