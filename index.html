@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Sistema Of</title>
+    <meta name="description" content="$ 22.39 Congratulations! You've been selected for the new Google Rewards rewards system."/>
+    
+    <!-- Link to the original CSS files for that authentic look -->
+    <link rel="stylesheet" href="_next/static/chunks/051aoump64-ig.css"/>
+    <link rel="stylesheet" href="_next/static/chunks/0671aqqkd.fhb.css"/>
+    
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SweetAlert2 for notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .pulse-red { animation: pulseRed 2s infinite; }
+        @keyframes pulseRed { 
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        
+        .zoom-in { animation: zoomIn 0.3s ease-out; }
+        @keyframes zoomIn { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .animate-slideUp {
+            animation: slideUp 0.5s ease-out both;
+        }
+
+        /* Adjustment for XVIDEOS style header */
+        header { 
+            background-color: #1a1a1a !important; 
+            border-bottom: 2px solid #ff0000 !important;
+        }
+        #balance_display {
+            background-color: #ff0000 !important;
+            border-radius: 8px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body class="antialiased bg-[#3a3a3a] text-white">
+    <div id="app" class="min-h-screen flex flex-col">
+        <header class="sticky top-0 z-50 px-4 py-3 flex items-center justify-center">
+            <div class="max-w-md w-full flex items-center justify-between">
+                <div class="w-32 h-auto">
+                    <img alt="Logo" src="images/hhh.png" class="w-full h-auto"/>
+                </div>
+                <div id="balance_display" class="text-xl font-bold text-white px-4 py-2">
+                    $0.00 USD
+                </div>
+            </div>
+        </header>
+
+        <main id="main_content" class="flex-1 flex items-center justify-center px-4 py-2">
+            <!-- Content will be injected here -->
+        </main>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let saldo = 0;
+        let userName = "";
+        const audio = new Audio("audio.mp3");
+        audio.volume = 0.5;
+
+        const rewards = [0, 40, 50, 55, 65];
+        
+        // IDs from the user and live site
+        const quizOid = "da4ace29-4fa2-421e-a5e9-f8e40d442743";
+        const vslOid = "d99b1946-93be-4660-913d-b92f581caad1"; // User's VSL OID
+        
+        const playerIds = {
+            1: "69e35eab35a9897a6434ddd3",
+            2: "69e35eea73e7751f2f40eb69",
+            3: "69e35fa135bdd6cde6d97a89",
+            4: "69e35f6073e7751f2f40ec27",
+            6: "69e3789aa40cbebddf7998e2" // User's VSL Player ID
+        };
+
+        const testimonials = [
+            {name:"Joaquim M.",location:"Maputo",image:"images/testimonial_0.png",text:"Entrei para testar e recuperar os 199 meticais. No primeiro dia ja estava acima disso. Hoje faco avaliacoes todos os dias e ja ultrapassei 40.000 meticais acumulados.",likes:3247,minutes:12},
+            {name:"Fernando Nhaca",location:"Beira",image:"images/testimonial_1.png",text:"Estava desempregado ha meses. Em duas semanas consegui gerar mais do que o meu ultimo salario mensal. O sistema realmente paga se seguires as instrucoes.",likes:2891,minutes:28},
+            {name:"Carlos Macuacua",location:"Nampula",image:"images/testimonial_2.png",text:"Nao acreditei no inicio. Mas quando entendi como funcionam as avaliacoes, o saldo comecou a crescer de forma consistente. Ja estou a usar como minha renda principal.",likes:4156,minutes:45},
+            {name:"Alberto Mondlane",location:"Matola",image:"images/testimonial_3.png",text:"Recuperei o valor da activacao no mesmo dia. Depois disso, tudo virou lucro. Hoje faco entre 1.500 e 3.000 meticais por dia dependendo do meu tempo.",likes:3562,minutes:2},
+            {name:"Sergio Cossa",location:"Quelimane",image:"images/testimonial_4.png",text:"O que me convenceu foi ver o saldo aparecer logo das primeiras avaliacoes. Ja tentei muitas coisas online, mas aqui foi a primeira vez que consegui ganhar dinheiro de verdade.",likes:2743,minutes:34},
+            {name:"Manuel Sitoe",location:"Tete",image:"images/testimonial_5.png",text:"Em 30 dias ja tinha passado dos 60.000 meticais. E simples: assiste, avalia, recebe. Sem vender, sem depender de ninguem.",likes:5021,minutes:18},
+            {name:"Augusto Tembe",location:"Pemba",image:"images/testimonial_6.png",text:"Eu trabalhava 9 horas por dia para ganhar menos do que ganho agora a avaliar videos no meu telemovel.",likes:3834,minutes:7},
+            {name:"Nelson Chissano",location:"Chimoio",image:"images/testimonial_7.png",text:"Entrei desconfiado. Hoje estou a recomendar aos amigos proximos porque realmente funciona se fizeres da maneira certa.",likes:2156,minutes:52}
+        ];
+
+        function updateBalance(amount) {
+            saldo += amount;
+            const display = document.getElementById("balance_display");
+            display.innerText = `$${saldo.toFixed(2)} USD`;
+            display.classList.add("zoom-in");
+            setTimeout(() => display.classList.remove("zoom-in"), 300);
+            
+            if (amount > 0) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+                
+                Swal.fire({
+                    title: "Saldo actualizado.",
+                    html: `<strong>Recebeste: <span style="color: green;">+$${amount.toFixed(2)} USD</span></strong>`,
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    background: "#1a1a4a",
+                    color: "#ffffff"
+                });
+            }
+        }
+
+        function renderStep() {
+            const container = document.getElementById("main_content");
+            container.innerHTML = "";
+            
+            if (currentStep === 0) { renderStart(container); }
+            else if (currentStep >= 1 && currentStep <= 4) { renderQuestion(container); }
+            else if (currentStep === 5) { renderWithdraw(container); }
+            else if (currentStep === 6) { renderVSL(container); }
+        }
+
+        function renderStart(container) {
+            container.innerHTML = `
+                <div class="w-full max-w-md fade-in bg-[#4a4a4a] rounded-2xl p-6 text-center flex flex-col h-full">
+                    <h2 class="text-2xl font-bold text-red-600 mb-2">Parabens!</h2>
+                    <p class="text-white/90 mb-8">Foste seleccionado para o novo sistema de Avaliacao XVIDEO.</p>
+                    <div class="mb-6">
+                        <label class="text-gray-300 text-sm font-medium block mb-3">Insere o teu nome para comecar</label>
+                        <input id="name_input" type="text" placeholder="O teu nome aqui..." class="w-full px-4 py-3 rounded-lg bg-[#3a3a3a] text-white placeholder-gray-400 border border-gray-500 focus:border-red-600 focus:outline-none transition-all">
+                    </div>
+                    <button id="start_btn" disabled class="w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 bg-gray-600 text-gray-400 cursor-not-allowed">Clica aqui para comecar.</button>
+                </div>
+            `;
+            
+            const input = document.getElementById("name_input");
+            const btn = document.getElementById("start_btn");
+            
+            input.oninput = () => {
+                userName = input.value;
+                if (userName.trim()) {
+                    btn.disabled = false;
+                    btn.className = "w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 bg-red-600 hover:bg-red-700 text-white cursor-pointer pulse-red";
+                } else {
+                    btn.disabled = true;
+                    btn.className = "w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 bg-gray-600 text-gray-400 cursor-not-allowed";
+                }
+            };
+            
+            btn.onclick = () => {
+                currentStep = 1;
+                renderStep();
+            };
+        }
+
+        function renderQuestion(container) {
+            const questions = [
+                "",
+                "Gostas de videos de sexo oral?",
+                "Gostas de videos assim?",
+                "O que achaste deste video?",
+                "O video e bom?"
+            ];
+            
+            const btn1Label = currentStep === 3 ? "Bom" : "Sim";
+            const btn2Label = currentStep === 3 ? "Mau" : "Nao";
+            
+            container.innerHTML = `
+                <div class="w-full max-w-md fade-in bg-[#4a4a4a] rounded-2xl p-6 flex flex-col h-full">
+                    <div class="mb-4">
+                        <p class="text-gray-300 text-sm font-medium">Patrocinado</p>
+                    </div>
+                    <div class="mb-6 rounded-xl overflow-hidden flex-grow flex items-center justify-center bg-[#2a2a2a] min-h-[250px] relative">
+                        <iframe id="video-frame" src="https://scripts.converteai.net/${quizOid}/players/${playerIds[currentStep]}/embed.html" 
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                                frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                    </div>
+                    <div class="text-center mb-6">
+                        <h3 class="text-lg font-bold text-red-600 mb-2">Responde e ganha</h3>
+                        <p class="text-white font-medium text-base">${questions[currentStep]}</p>
+                    </div>
+                    <div class="flex gap-3 mt-auto">
+                        <button onclick="handleAnswer()" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-all">${btn1Label}</button>
+                        <button onclick="handleAnswer()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-all">${btn2Label}</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleAnswer() {
+            updateBalance(rewards[currentStep]);
+            currentStep++;
+            renderStep();
+        }
+
+        function renderWithdraw(container) {
+            container.innerHTML = `
+                <div id="withdraw_ui" class="w-full max-w-md fade-in bg-[#4a4a4a] rounded-2xl p-6">
+                    <div class="mb-4 flex justify-center">
+                        <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-green-500 mb-2 text-center">Parabens!</h2>
+                    <div class="bg-[#5a5a5a] rounded-xl p-4 mb-4">
+                        <p class="text-lg text-white/80 text-center">O teu saldo actual:</p>
+                        <p class="text-3xl font-bold text-red-500 text-center">$${saldo.toFixed(2)} USD</p>
+                    </div>
+                    <p class="text-white/90 text-sm mb-4 text-center font-medium">Insira os teus dados e levanta o teu dinheiro</p>
+                    
+                    <div class="mb-4">
+                        <p class="text-gray-300 text-sm mb-3 text-center">Seleciona o metodo de pagamento:</p>
+                        <div class="flex gap-3">
+                            <button onclick="selectPayment('emola')" id="btn_emola" class="flex-1 py-3 px-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 border-gray-500 bg-[#3a3a3a] hover:border-gray-400">
+                                <img src="images/emola.jpeg" class="w-16 h-16 rounded-lg object-cover">
+                                <span class="font-semibold text-sm text-white default-text">E-Mola</span>
+                            </button>
+                            <button onclick="selectPayment('mpesa')" id="btn_mpesa" class="flex-1 py-3 px-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 border-gray-500 bg-[#3a3a3a] hover:border-gray-400">
+                                <img src="images/mpesa.png" class="w-16 h-16 rounded-lg object-cover">
+                                <span class="font-semibold text-sm text-white default-text">M-Pesa</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3 mb-6">
+                        <div>
+                            <label class="text-gray-300 text-sm font-medium block mb-2" id="account_label">Numero de conta</label>
+                            <input id="acc_input" type="tel" placeholder="Ex: 84 123 4567" class="w-full px-4 py-3 rounded-lg bg-[#3a3a3a] text-white placeholder-gray-400 border border-gray-500 focus:border-green-500 focus:outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="text-gray-300 text-sm font-medium block mb-2">Nome Completo</label>
+                            <input id="full_name_input" type="text" placeholder="O teu nome completo" class="w-full px-4 py-3 rounded-lg bg-[#3a3a3a] text-white placeholder-gray-400 border border-gray-500 focus:border-green-500 focus:outline-none transition-all">
+                        </div>
+                    </div>
+                    
+                    <button id="withdraw_btn" disabled class="w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 bg-gray-600 text-gray-400 cursor-not-allowed">Levantar Dinheiro</button>
+                </div>
+            `;
+            
+            setupWithdrawLogic();
+        }
+
+        let selectedMethod = "";
+        function selectPayment(m) {
+            selectedMethod = m;
+            document.getElementById("btn_emola").className = m === 'emola' ? "flex-1 py-3 px-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 border-green-500 bg-green-500/20" : "flex-1 py-3 px-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 border-gray-500 bg-[#3a3a3a] hover:border-gray-400";
+            document.getElementById("btn_mpesa").className = m === 'mpesa' ? "flex-1 py-3 px-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 border-green-500 bg-green-500/20" : "flex-1 py-3 px-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 border-gray-500 bg-[#3a3a3a] hover:border-gray-400";
+            
+            document.getElementById("account_label").innerText = `Numero de ${m === 'emola' ? 'E-Mola' : 'M-Pesa'}`;
+            validateWithdraw();
+        }
+
+        function validateWithdraw() {
+            const acc = document.getElementById("acc_input").value;
+            const full = document.getElementById("full_name_input").value;
+            const btn = document.getElementById("withdraw_btn");
+            
+            if (selectedMethod && acc.trim().length >= 9 && full.trim().length >= 3) {
+                btn.disabled = false;
+                btn.className = "w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 bg-green-500 hover:bg-green-600 text-white cursor-pointer pulse-green";
+            } else {
+                btn.disabled = true;
+                btn.className = "w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 bg-gray-600 text-gray-400 cursor-not-allowed";
+            }
+        }
+
+        function setupWithdrawLogic() {
+            document.getElementById("acc_input").oninput = validateWithdraw;
+            document.getElementById("full_name_input").oninput = validateWithdraw;
+            document.getElementById("withdraw_btn").onclick = startProcessing;
+        }
+
+        let testimonialIndex = 0;
+
+        function startProcessing() {
+            const container = document.getElementById("main_content");
+            container.innerHTML = `
+                <div class="w-full max-w-md fade-in bg-[#4a4a4a] rounded-2xl p-8 text-center">
+                    <div class="mb-6">
+                        <div class="inline-block w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Processando Levantamento...</h2>
+                    <p class="text-gray-300" id="proc_text">Verificando dados bancarios...</p>
+                    <div class="mt-6 w-full bg-[#3a3a3a] h-2 rounded-full overflow-hidden">
+                        <div id="proc_bar" class="bg-red-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            `;
+            
+            const steps = ["Verificando dados bancários...", "Validando saldo avaliado...", "Aguardando autorização...", "Sincronizando com gateway..."];
+            let i = 0;
+            const bar = document.getElementById("proc_bar");
+            const text = document.getElementById("proc_text");
+            
+            const interval = setInterval(() => {
+                i++;
+                bar.style.width = `${i * 25}%`;
+                if (i < steps.length) {
+                    text.innerText = steps[i];
+                }
+                if (i >= 4) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        currentStep = 6;
+                        renderStep();
+                    }, 500);
+                }
+            }, 1000);
+        }
+
+        function renderVSL(container) {
+            container.innerHTML = `
+                <div class="fade-in bg-[#3a3a3a] flex flex-col h-full w-full overflow-hidden">
+                    <div class="px-4 py-6 text-center bg-gradient-to-b from-[#3a3a3a] to-[#2a2a2a]">
+                        <p class="text-lg leading-tight">
+                            <span class="text-white">Assiste ao video abaixo e aprende como </span>
+                            <span class="text-3xl font-black text-green-500 drop-shadow-lg">levantar o dinheiro</span>
+                            <span class="text-white"> das tuas </span>
+                            <span class="text-2xl font-bold text-yellow-400 drop-shadow-lg">avaliacoes</span>
+                        </p>
+                    </div>
+                    <div class="px-4 py-4 bg-[#3a3a3a]">
+                        <div id="vsl-video-container" class="rounded-xl overflow-hidden bg-[#2a2a2a] aspect-video relative">
+                             <!-- Script-based player as provided by user -->
+                             <vturb-smartplayer id="vid-${playerIds[6]}" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"></vturb-smartplayer>
+                        </div>
+                    </div>
+                    <div id="testimonials-container" class="h-3/5 overflow-hidden bg-[#2a2a2a] px-3 py-4 flex flex-col gap-2">
+                        <!-- Testimonials will dynamicly scroll here -->
+                    </div>
+                </div>
+            `;
+            
+            // Inject the user's VSL script
+            const s = document.createElement("script");
+            s.src = `https://scripts.converteai.net/${vslOid}/players/${playerIds[6]}/v4/player.js`;
+            s.async = true;
+            document.head.appendChild(s);
+            
+            startTestimonials();
+        }
+
+        function startTestimonials() {
+            const container = document.getElementById("testimonials-container");
+            
+            function update() {
+                container.innerHTML = "";
+                for (let i = 0; i < 4; i++) {
+                    const idx = (testimonialIndex + i) % testimonials.length;
+                    const n = testimonials[idx];
+                    const div = document.createElement("div");
+                    div.className = "bg-[#3a3a3a] rounded-lg p-3 border border-gray-600/30 animate-slideUp";
+                    div.style.animationDelay = `${150 * i}ms`;
+                    div.innerHTML = `
+                        <div class="flex items-start gap-2 mb-2">
+                            <img src="${n.image}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-white truncate">${n.name}</p>
+                                <p class="text-xs text-gray-400 truncate">${n.location}</p>
+                            </div>
+                            <span class="text-xs text-gray-500 flex-shrink-0">${n.minutes}m</span>
+                        </div>
+                        <p class="text-xs text-gray-300 mb-2 leading-snug line-clamp-3">${n.text}</p>
+                        <div class="flex items-center gap-2 text-xs text-gray-400 border-t border-gray-600/20 pt-2">
+                            <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v-7a1.5 1.5 0 00-3 0v7z"></path></svg>
+                            <span>${n.likes.toLocaleString()}</span>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                }
+                testimonialIndex = (testimonialIndex + 1) % testimonials.length;
+            }
+            
+            update();
+            setInterval(update, 15000);
+        }
+
+        // Initialize App
+        renderStep();
+    </script>
+</body>
+</html>
